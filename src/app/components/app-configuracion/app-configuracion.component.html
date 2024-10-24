@@ -1,0 +1,15 @@
+<div *ngFor="let app of configuraciones | keyvalue">
+    <h2>{{ app.key }}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th *ngFor="let header of app.value[0]">{{ header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of app.value.slice(1)">
+          <td *ngFor="let cell of row">{{ cell }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
