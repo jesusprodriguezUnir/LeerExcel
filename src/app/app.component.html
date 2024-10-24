@@ -1,10 +1,6 @@
 <div>
   <h1>{{ title }}</h1>
-  <!-- Input para cargar el fichero Excel -->
-  <input type="file" (change)="onFileChange($event)" accept=".xlsx,.xls" />
-
-
-
+  <input type="file" (change)="onFileChange($event)" />
   <div *ngIf="sheetNames.length > 0">
     <h2>Hojas:</h2>
     <ul>
@@ -13,16 +9,19 @@
       </li>
     </ul>
   </div>
-  <table *ngIf="excelData.length > 0">
-    <thead>
-      <tr>
-        <th *ngFor="let header of excelData[0]">{{ header }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let row of excelData.slice(1)">
-        <td *ngFor="let cell of row">{{ cell }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <div *ngIf="excelData.length > 0">
+    <input type="text" placeholder="Filtrar datos..." (input)="onFilterTextChange($event)" />
+    <table>
+      <thead>
+        <tr>
+          <th *ngFor="let header of filteredData[0]">{{ header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of filteredData.slice(1)">
+          <td *ngFor="let cell of row">{{ cell }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

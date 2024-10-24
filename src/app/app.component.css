@@ -47,3 +47,11 @@ li.selected {
   background-color: #d2d2d2;
   font-weight: bold;
 }
+
+input[type="text"] {
+  margin-top: 20px;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}

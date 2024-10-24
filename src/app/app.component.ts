@@ -27,18 +27,14 @@ interface Application {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-
-  title = 'Configuraciones Aplicaciones Alfa';
-// Método para cambiar el título según el nombre de la hoja
-  updateTitle(sheetName: string): void {
-    this.title = `Configuraciones Aplicaciones Alfa - ${sheetName}`;
-  }
-  applications: Application[] = []; // Asegúrate de que está correctamente tipada
+  title = 'configuracion-app';
+  applications: Application[] = [];
   excelData: any[] = []; // Variable para almacenar los datos del Excel
+  filteredData: any[] = []; // Variable para almacenar los datos filtrados
   sheetNames: string[] = []; // Variable para almacenar los nombres de las hojas
   selectedSheet: string = ''; // Variable para almacenar la hoja seleccionada
-
-
+  filterText: string = ''; // Variable para almacenar el texto del filtro
+  workbook: XLSX.WorkBook | null = null; // Variable para almacenar el workbook
 
   // Método para manejar el evento de cambio de archivo
   onFileChange(event: any): void {
@@ -47,28 +43,46 @@ export class AppComponent {
       const reader = new FileReader();
       reader.onload = (e: any) => {
         const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        this.excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        this.workbook = XLSX.read(data, { type: 'array' });
+        this.sheetNames = this.workbook.SheetNames;
+        this.selectedSheet = this.sheetNames[0];
+        this.loadSheetData(this.selectedSheet);
       };
       reader.readAsArrayBuffer(file);
     }
   }
 
-// Método para cargar los datos de una hoja específica
-loadSheetData(workbook: XLSX.WorkBook, sheetName: string): void {
-  const worksheet = workbook.Sheets[sheetName];
-  this.excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-}
+  // Método para cargar los datos de una hoja específica
+  loadSheetData(sheetName: string): void {
+    if (this.workbook) {
+      const worksheet = this.workbook.Sheets[sheetName];
+      this.excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      this.applyFilter();
+    }
+  }
 
+  // Método para cambiar la hoja seleccionada
+  selectSheet(sheetName: string): void {
+    this.selectedSheet = sheetName;
+    this.loadSheetData(sheetName);
+  }
 
- // Método para cambiar la hoja seleccionada
- selectSheet(sheetName: string): void {
-  this.selectedSheet = sheetName;
-  const workbook = XLSX.read(this.excelData, { type: 'array' });
-  this.loadSheetData(workbook, sheetName);
-}
+  // Método para aplicar el filtro a los datos
+  applyFilter(): void {
+    if (this.filterText) {
+      this.filteredData = this.excelData.filter(row =>
+        row.some((cell: any) => cell.toString().toLowerCase().includes(this.filterText.toLowerCase()))
+      );
+    } else {
+      this.filteredData = this.excelData;
+    }
+  }
+
+  // Método para manejar el cambio en el texto del filtro
+  onFilterTextChange(event: any): void {
+    this.filterText = event.target.value;
+    this.applyFilter();
+  }
 
   // Añade el método toggleEnv aquí
   toggleEnv(appName: string, env: string): void {
@@ -79,5 +93,4 @@ loadSheetData(workbook: XLSX.WorkBook, sheetName: string): void {
     // Lógica para determinar si el entorno es visible
     return true; // Valor de retorno de marcador de posición
   }
-
 }
